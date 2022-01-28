@@ -30,6 +30,8 @@ namespace WebApiAutores.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Autor>> Get([FromRoute]int id)
         {
+
+            //ver
             var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
 
             if (autor == null)
