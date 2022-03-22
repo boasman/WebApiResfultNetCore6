@@ -10,8 +10,8 @@ using WebApiAutores;
 
 namespace WebApiAutores.Migrations
 {
-    [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20211215140225_Inicial")]
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20220129233441_Inicial")]
     partial class Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,7 +23,7 @@ namespace WebApiAutores.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("WebApiAutores.Entidades.Autor", b =>
+            modelBuilder.Entity("WebApiAutores.Entidades.CAutores", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

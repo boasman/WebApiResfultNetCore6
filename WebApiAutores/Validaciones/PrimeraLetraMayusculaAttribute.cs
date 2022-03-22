@@ -9,17 +9,22 @@ namespace WebApiAutores.Validaciones
             if (value == null || string.IsNullOrEmpty(value.ToString()))
             {
                 return ValidationResult.Success;
+
             }
 
-            var primeraletra = value.ToString()[0].ToString();
+            var primeraLetra = value.ToString()[0].ToString();
 
 
-            if(primeraletra != primeraletra.ToUpper())
+            if(primeraLetra != primeraLetra.ToUpper())
             {
-                return new ValidationResult("La primera letra debe ser mayuscula");
+                return new ValidationResult("La primera letra no es mayuscula");
             }
 
-            return ValidationResult.Success;    
+            else
+            {
+                return ValidationResult.Success;
+            }
         }
     }
+    
 }

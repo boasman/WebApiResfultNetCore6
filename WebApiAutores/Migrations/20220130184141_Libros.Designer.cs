@@ -10,8 +10,8 @@ using WebApiAutores;
 
 namespace WebApiAutores.Migrations
 {
-    [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20211215165156_Libros")]
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20220130184141_Libros")]
     partial class Libros
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
