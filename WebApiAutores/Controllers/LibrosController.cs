@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 
 namespace WebApiAutores.Controllers
@@ -10,31 +12,48 @@ namespace WebApiAutores.Controllers
     public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
-        public LibrosController(ApplicationDbContext context)
+        public LibrosController(ApplicationDbContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet("{id:int}")]
 
-        public async Task<ActionResult<Libro>> Get(int id)
+        public async Task<ActionResult<LibroDTO>> Get(int id)
         {
-            return await context.Libros.Include(x=>x.Autor).FirstOrDefaultAsync(x => x.Id == id);
+
+            var libro = await context.Libros.FirstOrDefaultAsync(libroDb => libroDb.Id == id);
+            
+            if(libro == null)
+            {
+                return NotFound("Libro no encontrado");
+            }
+
+            var result = mapper.Map<LibroDTO>(libro);
+
+            return result;
 
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(Libro libro)
+        public async Task<ActionResult> Post(LibroCreacionDTOS libro)
         {
-            var existeAutor = await context.Autores.AnyAsync(x=>x.Id == libro.AutorId);
+            //var existeAutor = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
 
-            if (!existeAutor)
-            {
-                return BadRequest($"No existe el autor de Id: {libro.AutorId}");
-            }
-            context.Add(libro);
+            //if (!existeAutor)
+            //{
+            //    return BadRequest($"No existe el autor de Id: {libro.AutorId}");
+            //}
+
+            var result = mapper.Map<Libro>(libro);
+
+            context.Add(result);
+
             await context.SaveChangesAsync();
+            
             return Ok("Se ha creado el libro");
 
         }
