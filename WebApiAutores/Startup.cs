@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebApiAutores.Filtros;
 using WebApiAutores.Middlewares;
-using WebApiAutores.Servicios;
+
 
 namespace WebApiAutores
 {
@@ -29,7 +29,7 @@ namespace WebApiAutores
 
            
             services.AddTransient<MiFiltroDeAccion>();
-            services.AddHostedService<EscribirEnArchivo>();
+            //services.AddHostedService<EscribirEnArchivo>();
 
             services.AddResponseCaching();
 
