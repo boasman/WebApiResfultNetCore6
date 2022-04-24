@@ -16,14 +16,16 @@ namespace WebApiAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IConfiguration configuration;
 
-        public AutoresController(ApplicationDbContext context, IMapper mapper)
+        public AutoresController(ApplicationDbContext context, IMapper mapper, IConfiguration configuration)
         {
             this.context = context;
             this.mapper = mapper;
+            this.configuration = configuration;
         }
 
-        [HttpGet] //api/autores
+        [HttpGet()] //api/autores
         //[HttpGet("listado")] //api/autores/listado
         //[HttpGet("/listado")] //listado       
         //[ServiceFilter(typeof(MiFiltroDeAccion))]
@@ -36,14 +38,26 @@ namespace WebApiAutores.Controllers
             var result = mapper.Map<List<AutoresDto>>(autores);
 
             return result;
-        }       
+        }    
+        
+        [HttpGet("Configuraciones")]
+        public ActionResult<string> obtenerApellido()
+        {
+
+            return configuration["apellido"];
+            //return configuration.GetConnectionString("defaultConnection");
+           //return  configuration["ConnectionStrings:defaultConnection"];
+        }
 
         
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<AutoresDto>> Get(int id )
+        [HttpGet("{id:int}", Name = "obtenerAutor")]
+        public async Task<ActionResult<AutorConLibroDto>> Get(int id )
         {
-            var autor = await context.Autores.FirstOrDefaultAsync(autorBD => autorBD.Id == id);
+            var autor = await context.Autores
+                .Include(AutorDb => AutorDb.AutoresLibros)
+                .ThenInclude(autorlibro => autorlibro.Libro)
+                .FirstOrDefaultAsync(autorBD => autorBD.Id == id);
 
             if (autor == null)
             {
@@ -51,7 +65,7 @@ namespace WebApiAutores.Controllers
             }           
 
 
-            return mapper.Map<AutoresDto>(autor); ;
+            return mapper.Map<AutorConLibroDto>(autor); ;
         }
 
          /* Hay tres forma de devolver tipo de datos en una api 
@@ -115,20 +129,18 @@ namespace WebApiAutores.Controllers
 
             context.Add(autor);
             await context.SaveChangesAsync();
-            return Ok();
+
+            var autorDto = mapper.Map<AutoresDto>(autor);
+
+            return CreatedAtRoute("obtenerAutor", new { Id = autor.Id }, autorDto);
 
         }
         
 
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Autor autor, int id)
-        {
-
-            if (autor.Id != id)
-            {
-                return BadRequest("El id no coincide con el id de la url");
-            }
+        public async Task<ActionResult> Put(AutorCreacionDTOS autorCreacionDTOS, int id)
+        {          
 
             var existe = await context.Autores.AnyAsync(x => x.Id == id);
 
@@ -137,9 +149,12 @@ namespace WebApiAutores.Controllers
                 return NotFound("El autor no ha sido encontrado");
             }
 
+            var autor = mapper.Map<Autor>(autorCreacionDTOS);
+            autor.Id = id;
+
             context.Update(autor);
             await context.SaveChangesAsync();
-            return Ok("Autor actualizado");
+            return NoContent();
         }
 
         [HttpDelete]

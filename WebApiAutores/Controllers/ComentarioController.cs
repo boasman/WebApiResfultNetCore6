@@ -19,8 +19,7 @@ namespace WebApiAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet]
-
+        [HttpGet]       
         public async Task<List<ComentarioDTOS>> Get(int LibroId)
         {
 
@@ -29,6 +28,22 @@ namespace WebApiAutores.Controllers
 
             return mapper.Map<List<ComentarioDTOS>>(comentario);
 
+
+        }
+
+        [HttpGet]
+        [Route("{id:int}", Name = "obtenerComentario")]
+
+        public async Task<ActionResult<ComentarioDTOS>> GetById(int id)
+        {
+            var comentario = await context.Comentarios.FirstOrDefaultAsync(x => x.Id == id);
+
+            if(comentario == null)
+            {
+                return NotFound("El comentario no existe");
+            }
+
+            return mapper.Map<ComentarioDTOS>(comentario);
 
         }
 
@@ -49,12 +64,41 @@ namespace WebApiAutores.Controllers
             context.Add(comentario);
             context.SaveChanges();
 
-            return Ok();
+            var comentarioDto = mapper.Map<ComentarioDTOS>(comentario);
 
-
-
-
+            return CreatedAtRoute("obtenerComentario", new { id = comentario.Id, libroId = LibroId }, comentarioDto);
 
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int LibroId, int id,ComentarioCreacionDTOS comentarioCreacion )
+        {
+
+            var existelibro = await context.Libros.AnyAsync(libroBD => libroBD.Id == LibroId);
+
+            if (!existelibro)
+            {
+                return NotFound();
+            }
+
+            var existeComentario = await context.Comentarios.AnyAsync(comentarioBd => comentarioBd.Id == id);
+
+            if (!existeComentario)
+            {
+                return NotFound();
+            }
+
+            var comentario = mapper.Map<Comentario>(comentarioCreacion);
+
+            comentario.Id = id;
+            comentario.LibroId = LibroId;
+            context.Update(comentario);
+            await context.SaveChangesAsync();
+
+            return NoContent();
+
+        }
+
+
     }
 }

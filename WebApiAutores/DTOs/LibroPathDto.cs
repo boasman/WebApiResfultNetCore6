@@ -3,13 +3,13 @@ using WebApiAutores.Validaciones;
 
 namespace WebApiAutores.DTOs
 {
-    public class LibroCreacionDTOS
+    public class LibroPathDto
     {
 
         [PrimeraLetraMayuscula]
         [MaxLength(250)]
         public string Titulo { get; set; }
-        public List<int> AutoresIds { get; set; }
+        
         public DateTime? FechaPublicacion { get; set; }
     }
 }
