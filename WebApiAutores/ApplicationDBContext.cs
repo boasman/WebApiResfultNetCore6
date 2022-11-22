@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
 
 namespace WebApiAutores
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -12,7 +13,8 @@ namespace WebApiAutores
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder); // tener esta parte es muy importante antes de hacer la migracion, siempre y cuando se haya sobreescrito el modelcreating
+            //sino no pasa nada, pero sin eso no funciona
 
             modelBuilder.Entity<AutorLibro>().HasKey(al => new {al.LibroId, al.AutorId});   
         }

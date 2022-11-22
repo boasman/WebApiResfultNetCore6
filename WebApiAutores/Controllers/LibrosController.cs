@@ -44,7 +44,7 @@ namespace WebApiAutores.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost(Name ="crearLibro")]
         public async Task<ActionResult> Post(LibroCreacionDTOS libroCreacionDtos)
         {
 
@@ -95,7 +95,7 @@ namespace WebApiAutores.Controllers
         //    return Ok("Se ha actualizado en registro");
         //}
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name ="actualizarLibro")]
         
         public async Task<ActionResult> Put(int id, LibroCreacionDTOS libroCreacionDTOS)
         {
@@ -118,8 +118,7 @@ namespace WebApiAutores.Controllers
             return NotFound();
         }
 
-        [HttpDelete]
-
+        [HttpDelete(Name = "borrarLibro")]
         public async Task<ActionResult> Delete (int id)
         {
             var existe = await context.Libros.AnyAsync(x=>x.Id == id);
@@ -148,7 +147,7 @@ namespace WebApiAutores.Controllers
             }
         }
 
-        [HttpPatch("{id:int}")]
+        [HttpPatch("{id:int}", Name ="actualizarLibro")]
 
         public async Task<ActionResult> Path(int id, JsonPatchDocument<LibroPathDto> patchDocument)
         {

@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
@@ -12,14 +15,18 @@ namespace WebApiAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public ComentariosController(ApplicationDbContext context, IMapper mapper)
+        public ComentariosController(ApplicationDbContext context,
+            IMapper mapper,
+            UserManager<IdentityUser> userManager)
         {
             this.context = context;
             this.mapper = mapper;
+            this.userManager = userManager;
         }
 
-        [HttpGet]       
+        [HttpGet(Name ="obtenerComentarioLibro")]       
         public async Task<List<ComentarioDTOS>> Get(int LibroId)
         {
 
@@ -47,19 +54,30 @@ namespace WebApiAutores.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost(Name = "agregarComentario")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Post(int LibroId, ComentarioCreacionDTOS model)
         {
 
-            var libro = await context.Libros.AnyAsync(x => x.Id == LibroId);
+            var emailClaim = HttpContext.User.Claims.Where(claims=>claims.Type == "email").FirstOrDefault();
 
-            if (!libro)
+            var email = emailClaim.Value;
+
+            var usuario = await userManager.FindByEmailAsync(email);  //para obtener el id del usuario mediante su email
+
+            var usuarioId = usuario.Id;
+
+
+            var existeLibro = await context.Libros.AnyAsync(x => x.Id == LibroId);
+
+            if (!existeLibro)
             {
                 return NotFound("El libro no existe");
             }
 
             var comentario = mapper.Map<Comentario>(model);
             comentario.LibroId = LibroId;
+            comentario.UsuarioId = usuarioId;
 
             context.Add(comentario);
             context.SaveChanges();
@@ -70,7 +88,7 @@ namespace WebApiAutores.Controllers
 
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name ="actualizarComentario")]
         public async Task<ActionResult> Put(int LibroId, int id,ComentarioCreacionDTOS comentarioCreacion )
         {
 

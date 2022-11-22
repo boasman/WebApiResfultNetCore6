@@ -12,7 +12,4 @@ var servicioLogger = (ILogger<Startup>)app.Services.GetService(typeof(ILogger<St
 
 startup.Configure(app, app.Environment, servicioLogger);
 
-
-
-
 app.Run();
